@@ -21442,14 +21442,70 @@
 	
 	var React = __webpack_require__(1);
 	
+	var Tile = __webpack_require__(176);
+	
 	var Environment = React.createClass({
 	  displayName: 'Environment',
+	
+	  getInitialState: function getInitialState() {
+	    return {
+	      tiles: this.generateTiles(50, 0.5)
+	    };
+	  },
+	  generateTiles: function generateTiles(size, freq) {
+	    var tiles = [];
+	    for (var i = 0; i < size; i++) {
+	      var row = [];
+	      for (var j = 0; j < size; j++) {
+	        var isEmpty = !Math.floor(Math.random() + freq);
+	        var color = isEmpty ? { h: 0, s: 0, l: 80 } : { h: Math.random() * 360, s: 100, l: 50 };
+	        row.push(React.createElement(Tile, { color: color }));
+	      }
+	      tiles.push(row);
+	    }
+	    return tiles;
+	  },
 	  render: function render() {
-	    return React.createElement('div', null);
+	    return React.createElement(
+	      'div',
+	      null,
+	      this.state.tiles.map(function (row) {
+	        return React.createElement(
+	          'span',
+	          { className: 'row' },
+	          React.createElement(
+	            'div',
+	            null,
+	            row
+	          )
+	        );
+	      })
+	    );
 	  }
 	});
 	
 	module.exports = Environment;
+
+/***/ },
+/* 176 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var React = __webpack_require__(1);
+	
+	var Tile = React.createClass({
+	  displayName: 'Tile',
+	  render: function render() {
+	    var color = this.props.color;
+	    var style = {
+	      backgroundColor: 'hsl(' + color.h + ', ' + color.s + '%, ' + color.l + '%)'
+	    };
+	    return React.createElement('span', { className: 'tile', style: style });
+	  }
+	});
+	
+	module.exports = Tile;
 
 /***/ }
 /******/ ]);
