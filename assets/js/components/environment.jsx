@@ -1,33 +1,32 @@
 const React = require('react');
 
 const Tile = require('./tile');
+const Board = require('../logic');
 
 const Environment = React.createClass({
   getInitialState: function() {
     return {
-      tiles: this.generateTiles(50, 0.5)
+      board: new Board(30, 0.5)
     };
   },
-  generateTiles(size, freq) {
-    const tiles = [];
-    for (let i = 0; i < size; i++) {
-      let row = [];
-      for (let j = 0; j < size; j++) {
-        let isEmpty = !Math.floor(Math.random() + freq);
-        let color = isEmpty
-          ? {h: 0, s: 0, l: 80}
-          : {h: Math.random() * 360, s: 100, l: 50};
-        row.push(<Tile color={ color }/>);
-      }
-      tiles.push(row);
-    }
-    return tiles;
+  handleClick() {
+    // console.table(this.state.board.tiles[0][0]);
+    const newBoard = this.state.board.nextGen(); //.bind(this.state.board);
+    this.setState({board: newBoard});
+    setTimeout(this.handleClick, 100);
+  },
+  componentWillUpdate() {
+    // console.log("will update");
   },
   render() {
-    return <div>
+    return <div onClick={ this.handleClick }>
       {
-        this.state.tiles.map(row => {
-          return <span className='row'><div>{ row }</div></span>;
+        this.state.board.tiles.map((row, i) => {
+          return <span key={ i } className='row'><div>
+            {
+              row.map((t, j) => <Tile key={ j } color={ t.color }/>)
+            }
+          </div></span>;
         })
       }
     </div>;

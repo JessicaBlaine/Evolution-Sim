@@ -21443,40 +21443,39 @@
 	var React = __webpack_require__(1);
 	
 	var Tile = __webpack_require__(176);
+	var Board = __webpack_require__(177);
 	
 	var Environment = React.createClass({
 	  displayName: 'Environment',
 	
 	  getInitialState: function getInitialState() {
 	    return {
-	      tiles: this.generateTiles(50, 0.5)
+	      board: new Board(30, 0.5)
 	    };
 	  },
-	  generateTiles: function generateTiles(size, freq) {
-	    var tiles = [];
-	    for (var i = 0; i < size; i++) {
-	      var row = [];
-	      for (var j = 0; j < size; j++) {
-	        var isEmpty = !Math.floor(Math.random() + freq);
-	        var color = isEmpty ? { h: 0, s: 0, l: 80 } : { h: Math.random() * 360, s: 100, l: 50 };
-	        row.push(React.createElement(Tile, { color: color }));
-	      }
-	      tiles.push(row);
-	    }
-	    return tiles;
+	  handleClick: function handleClick() {
+	    // console.table(this.state.board.tiles[0][0]);
+	    var newBoard = this.state.board.nextGen(); //.bind(this.state.board);
+	    this.setState({ board: newBoard });
+	    setTimeout(this.handleClick, 100);
+	  },
+	  componentWillUpdate: function componentWillUpdate() {
+	    // console.log("will update");
 	  },
 	  render: function render() {
 	    return React.createElement(
 	      'div',
-	      null,
-	      this.state.tiles.map(function (row) {
+	      { onClick: this.handleClick },
+	      this.state.board.tiles.map(function (row, i) {
 	        return React.createElement(
 	          'span',
-	          { className: 'row' },
+	          { key: i, className: 'row' },
 	          React.createElement(
 	            'div',
 	            null,
-	            row
+	            row.map(function (t, j) {
+	              return React.createElement(Tile, { key: j, color: t.color });
+	            })
 	          )
 	        );
 	      })
@@ -21506,6 +21505,104 @@
 	});
 	
 	module.exports = Tile;
+
+/***/ },
+/* 177 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	function Board(size, freq) {
+	  this.tiles = this.generateTiles(size, freq);
+	}
+	
+	Board.prototype.generateTiles = function (size, freq) {
+	  var tiles = [];
+	  for (var i = 0; i < size; i++) {
+	    var row = [];
+	    for (var j = 0; j < size; j++) {
+	      var isEmpty = !Math.floor(Math.random() + freq);
+	      var color = isEmpty ? { h: 0, s: 0, l: 80 } : { h: Math.random() * 360, s: 100, l: 50 };
+	      row.push(new Tile(color, isEmpty));
+	    }
+	    tiles.push(row);
+	  }
+	  return tiles;
+	};
+	
+	Board.prototype.nextGen = function () {
+	  for (var i = 0; i < this.tiles.length; i++) {
+	    for (var j = 0; j < this.tiles[i].length; j++) {
+	      // debugger;
+	      var tile = this.tiles[i][j];
+	      if (tile.isEmpty) {
+	        var neighbors = [];
+	        for (var y = -1; y <= 1; y++) {
+	          if (y + i < 0 || y + i >= this.tiles.length) continue;
+	          for (var x = -1; x <= 1; x++) {
+	            if (x + j < 0 || x + j >= this.tiles[i].length) continue;
+	            neighbors.push(this.tiles[i + y][j + x]);
+	          }
+	        }
+	        var living = neighbors.filter(function (t) {
+	          return !t.isEmpty && !t.attemptedBirth;
+	        });
+	        // console.log(living);
+	        if (living.length >= 2) {
+	          // shuffle(living);
+	          tile.attemptChild(living[0], living[1]);
+	        }
+	      }
+	    }
+	  }
+	  this.tiles.forEach(function (row) {
+	    return row.forEach(function (t) {
+	      if (t.attemptedBirth) {
+	        t.attemptedBirth = false;
+	      } else {
+	        t.color.s -= 5;
+	        t.color.l += 1.5;
+	        if (t.color.s <= 40) {
+	          t.color = { h: 0, s: 0, l: 80 };
+	          t.isEmpty = true;
+	        }
+	      }
+	    });
+	  });
+	  // console.log("done");
+	  return this;
+	};
+	
+	function Tile(color, isEmpty) {
+	  this.color = color;
+	  this.isEmpty = isEmpty;
+	  this.attemptedBirth = false;
+	}
+	
+	Tile.prototype.attemptChild = function (p1, p2) {
+	  // debugger;
+	  var dif = Math.min(Math.abs(p1.color.h - p2.color.h), Math.abs(p1.color.h + 360 - p2.color.h), Math.abs(p1.color.h - 360 - p2.color.h));
+	  // debugger
+	  // console.table(this);
+	  if (Math.random() * 180 > dif) {
+	    this.isEmpty = false;
+	    this.color = { h: (p1.color.h + p2.color.h) / 2, s: 100, l: 50 };
+	    // console.table(this);
+	    // console.log("birthed");
+	    // debugger;
+	  }
+	  [p1, p2].forEach(function (parent) {
+	    parent.attemptedBirth = true;
+	    parent.color.s -= 20;
+	    parent.color.l += 6;
+	    if (parent.color.s <= 40) {
+	      parent.color = { h: 0, s: 0, l: 80 };
+	      parent.isEmpty = true;
+	    }
+	  });
+	};
+	
+	module.exports = Board;
 
 /***/ }
 /******/ ]);
