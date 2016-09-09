@@ -6,18 +6,18 @@ const Board = require('../logic');
 const Environment = React.createClass({
   getInitialState: function() {
     return {
-      board: new Board(30, 0.5)
+      board: new Board(40, 0.5)
     };
   },
   handleClick() {
     // console.table(this.state.board.tiles[0][0]);
     const newBoard = this.state.board.nextGen(); //.bind(this.state.board);
-    this.setState({board: newBoard});
+    this.setState({});
     setTimeout(this.handleClick, 100);
   },
-  componentWillUpdate() {
-    // console.log("will update");
-  },
+  // componentWillUpdate() {
+  //   // console.log("will update");
+  // },
   render() {
     return <div onClick={ this.handleClick }>
       {

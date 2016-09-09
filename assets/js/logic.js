@@ -66,24 +66,25 @@ function Tile(color, isEmpty) {
 
 Tile.prototype.attemptChild = function (p1, p2) {
   // debugger;
-  const dif = Math.min(
-    Math.abs(p1.color.h - p2.color.h),
-    Math.abs((p1.color.h + 360) - p2.color.h),
-    Math.abs((p1.color.h - 360) - p2.color.h)
-  );
+  const dif = Math.abs(p1.color.h - p2.color.h); //Math.min(
+  //   Math.abs(p1.color.h - p2.color.h),
+  //   Math.abs((p1.color.h + 360) - p2.color.h),
+  //   Math.abs((p1.color.h - 360) - p2.color.h)
+  // );
   // debugger
   // console.table(this);
-  if (Math.random() * 180 > dif) {
+  if (dif < 30) {
     this.isEmpty = false;
-    this.color = {h: (p1.color.h + p2.color.h) / 2, s: 100, l: 50};
+    const hue = (p1.color.h + p2.color.h) / 2 + (Math.random() * 30 - 15);
+    this.color = {h: hue, s: 100, l: 50};
     // console.table(this);
     // console.log("birthed");
     // debugger;
   }
   [p1, p2].forEach(parent => {
     parent.attemptedBirth = true;
-    parent.color.s -= 20;
-    parent.color.l += 6;
+    parent.color.s -= 10;
+    parent.color.l += 3;
     if (parent.color.s <= 40) {
       parent.color = {h: 0, s: 0, l: 80};
       parent.isEmpty = true;

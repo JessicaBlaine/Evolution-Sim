@@ -21450,18 +21450,19 @@
 	
 	  getInitialState: function getInitialState() {
 	    return {
-	      board: new Board(30, 0.5)
+	      board: new Board(40, 0.5)
 	    };
 	  },
 	  handleClick: function handleClick() {
 	    // console.table(this.state.board.tiles[0][0]);
 	    var newBoard = this.state.board.nextGen(); //.bind(this.state.board);
-	    this.setState({ board: newBoard });
+	    this.setState({});
 	    setTimeout(this.handleClick, 100);
 	  },
-	  componentWillUpdate: function componentWillUpdate() {
-	    // console.log("will update");
-	  },
+	
+	  // componentWillUpdate() {
+	  //   // console.log("will update");
+	  // },
 	  render: function render() {
 	    return React.createElement(
 	      'div',
@@ -21581,20 +21582,25 @@
 	
 	Tile.prototype.attemptChild = function (p1, p2) {
 	  // debugger;
-	  var dif = Math.min(Math.abs(p1.color.h - p2.color.h), Math.abs(p1.color.h + 360 - p2.color.h), Math.abs(p1.color.h - 360 - p2.color.h));
+	  var dif = Math.abs(p1.color.h - p2.color.h); //Math.min(
+	  //   Math.abs(p1.color.h - p2.color.h),
+	  //   Math.abs((p1.color.h + 360) - p2.color.h),
+	  //   Math.abs((p1.color.h - 360) - p2.color.h)
+	  // );
 	  // debugger
 	  // console.table(this);
-	  if (Math.random() * 180 > dif) {
+	  if (dif < 30) {
 	    this.isEmpty = false;
-	    this.color = { h: (p1.color.h + p2.color.h) / 2, s: 100, l: 50 };
+	    var hue = (p1.color.h + p2.color.h) / 2 + (Math.random() * 30 - 15);
+	    this.color = { h: hue, s: 100, l: 50 };
 	    // console.table(this);
 	    // console.log("birthed");
 	    // debugger;
 	  }
 	  [p1, p2].forEach(function (parent) {
 	    parent.attemptedBirth = true;
-	    parent.color.s -= 20;
-	    parent.color.l += 6;
+	    parent.color.s -= 10;
+	    parent.color.l += 3;
 	    if (parent.color.s <= 40) {
 	      parent.color = { h: 0, s: 0, l: 80 };
 	      parent.isEmpty = true;
